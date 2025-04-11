@@ -1,8 +1,9 @@
 source 'https://rubygems.org'
 
 group :development do
+  gem 'debug'
   gem 'rspec'
-  gem "ruby-lsp-rspec", require: false
+  gem 'ruby-lsp-rspec', require: false
   gem 'sorbet'
-  gem 'debug', require: false
+  gem 'tapioca'
 end
