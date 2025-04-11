@@ -1,7 +1,6 @@
 # typed: strict
 
 require 'rlox/token'
-require 'debug'
 
 class Rlox
   class Scanner
@@ -42,6 +41,8 @@ class Rlox
 
       @tokens << Token.new(:EOF, '', nil, @line)
     end
+
+    private
 
     #: () -> void
     def scan_token
@@ -88,8 +89,6 @@ class Rlox
       end
     end
 
-    private
-
     #: () -> bool
     def at_end?
       @current >= @source.length
@@ -109,7 +108,7 @@ class Rlox
     def add_token(type, literal = nil)
       Token.verify_type!(type)
 
-      text = @source.slice(@start, @current)
+      text = @source[@start...@current]
       raise if text.nil? # TODO: better error handling here
 
       @tokens << Token.new(type, text, literal, @line)
@@ -157,7 +156,7 @@ class Rlox
 
       advance
 
-      value = @source.slice(@start + 1, @current - 2)
+      value = @source[@start + 1...@current - 1]
       add_token(:STRING, value)
     end
 
@@ -175,14 +174,14 @@ class Rlox
         advance while digit?(peek)
       end
 
-      add_token(:NUMBER, @source.slice(@start, @current).to_f)
+      add_token(:NUMBER, @source[@start...@current].to_f)
     end
 
     #: () -> void
     def identifier
       advance while alphanumeric?(peek)
 
-      text = @source.slice(@start, @current)
+      text = @source[@start...@current]
       raise if text.nil?
 
       type = KEYWORDS.dig(text)
