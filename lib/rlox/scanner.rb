@@ -97,20 +97,14 @@ class Rlox
     #: () -> String
     def advance
       @current += 1
-      char = @source[@current - 1]
-
-      raise if char.nil? # TODO: better error handling here
-
-      char
+      @source[@current - 1] #: as !nil
     end
 
     #: (Symbol, untyped) -> void
     def add_token(type, literal = nil)
       Token.verify_type!(type)
 
-      text = @source[@start...@current]
-      raise if text.nil? # TODO: better error handling here
-
+      text = @source[@start...@current] #: as !nil
       @tokens << Token.new(type, text, literal, @line)
     end
 
@@ -126,20 +120,14 @@ class Rlox
     #: () -> String
     def peek
       return '\0' if at_end?
-      char = @source[@current]
-      raise if char.nil?
-
-      char
+      @source[@current] #: as !nil
     end
 
     #: () -> String
     def peek_next
       return '\0' if @current + 1 >= @source.length
 
-      char = @source[@current + 1]
-      raise if char.nil?
-
-      return char
+      @source[@current + 1] #: as !nil
     end
 
     #: () -> void
@@ -181,11 +169,8 @@ class Rlox
     def identifier
       advance while alphanumeric?(peek)
 
-      text = @source[@start...@current]
-      raise if text.nil?
-
-      type = KEYWORDS.dig(text)
-      type ||= :IDENTIFIER
+      text = @source[@start...@current] #: as !nil
+      type = KEYWORDS.dig(text) || :IDENTIFIER
 
       add_token(type)
     end
