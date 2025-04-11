@@ -30,6 +30,7 @@ class Rlox
       @start = 0    #: Integer
       @current = 0  #: Integer
       @line = 1     #: Integer
+      @in_comment = false #: bool
     end
 
     #: () -> Array[Token]
@@ -68,7 +69,9 @@ class Rlox
         add_token(match?('=') ? :GREATER_EQUAL : :GREATER)
       when '/'
         if match?('/')
-          advance while peek != '\n' && !at_end?
+          advance until peek == '\n' || at_end?
+        elsif match?('*')
+          advance until (peek == '/' && peek_next == '*') || at_end?
         else
           add_token(:SLASH)
         end

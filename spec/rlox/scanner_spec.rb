@@ -67,6 +67,14 @@ describe Rlox::Scanner do
       expect_token(tokens[1], :PLUS, "+")
       expect_token(tokens[2], :NUMBER, "5", 5.0)
     end
+
+    it 'recognizes block comments' do
+      scanner = Rlox::Scanner.new("/* This is a \ncomment */")
+      tokens = scanner.scan_tokens
+
+      expect(tokens.length).to eq(1)
+      expect_eof(tokens.first)
+    end
   end
 
   private
