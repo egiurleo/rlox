@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Gem::Specification.new do |s|
   s.name                  = 'rlox'
   s.version               = '0.0.1'
@@ -9,5 +11,5 @@ Gem::Specification.new do |s|
   s.license               = 'MIT'
   s.required_ruby_version = '3.4'
   s.metadata              = { 'rubygems_mfa_required' => 'true' }
-  s.bindir                = "exe"
+  s.bindir                = 'exe'
 end

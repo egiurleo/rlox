@@ -1,27 +1,28 @@
 # typed: strict
+# frozen_string_literal: true
 
 require 'rlox/token'
 
 class Rlox
   class Scanner
     KEYWORDS = {
-      "and"     => :AND,
-      "class"   => :CLASS,
-      "else"    => :ELSE,
-      "false"   => :FALSE,
-      "for"     => :FOR,
-      "fun"     => :FUN,
-      "if"      => :IF,
-      "nil"     => :NIL,
-      "or"      => :OR,
-      "print"   => :PRINT,
-      "return"  => :RETURN,
-      "super"   => :SUPER,
-      "this"    => :THIS,
-      "true"    => :TRUE,
-      "var"     => :VAR,
-      "while"   => :WHILE,
-    } #: Hash[String, Symbol]
+      'and' => :AND,
+      'class' => :CLASS,
+      'else' => :ELSE,
+      'false' => :FALSE,
+      'for' => :FOR,
+      'fun' => :FUN,
+      'if' => :IF,
+      'nil' => :NIL,
+      'or' => :OR,
+      'print' => :PRINT,
+      'return' => :RETURN,
+      'super' => :SUPER,
+      'this' => :THIS,
+      'true' => :TRUE,
+      'var' => :VAR,
+      'while' => :WHILE
+    }.freeze #: Hash[String, Symbol]
 
     #: (String) -> void
     def initialize(source)
@@ -120,6 +121,7 @@ class Rlox
     #: () -> String
     def peek
       return '\0' if at_end?
+
       @source[@current] #: as !nil
     end
 
@@ -138,7 +140,7 @@ class Rlox
       end
 
       if at_end?
-        Rlox.error(@line, "Unterminated string.")
+        Rlox.error(@line, 'Unterminated string.')
         return
       end
 
@@ -150,7 +152,7 @@ class Rlox
 
     #: (String) -> bool
     def digit?(c)
-      return c >= '0' && c <= '9'
+      c.between?('0', '9')
     end
 
     #: () -> void
@@ -170,14 +172,14 @@ class Rlox
       advance while alphanumeric?(peek)
 
       text = @source[@start...@current] #: as !nil
-      type = KEYWORDS.dig(text) || :IDENTIFIER
+      type = KEYWORDS[text] || :IDENTIFIER
 
       add_token(type)
     end
 
     #: (String) -> bool
     def alpha?(c)
-      (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == "_"
+      c.between?('a', 'z') || c.between?('A', 'Z') || c == '_'
     end
 
     #: (String) -> bool

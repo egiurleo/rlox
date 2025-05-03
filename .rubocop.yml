@@ -1,0 +1,36 @@
+require:
+ - rubocop-sorbet
+ - rubocop-rspec
+
+AllCops:
+  NewCops: enable
+
+Layout/LeadingCommentSpace:
+  Enabled: false
+
+Metrics/AbcSize:
+  Enabled: false
+
+Metrics/BlockLength:
+  Enabled: false
+
+Metrics/ClassLength:
+  Enabled: false
+
+Metrics/CyclomaticComplexity:
+  Enabled: false
+
+Metrics/MethodLength:
+  Enabled: false
+
+Metrics/PerceivedComplexity:
+  Enabled: false
+
+Naming/MethodParameterName:
+  Enabled: false
+
+RSpec/ExampleLength:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
