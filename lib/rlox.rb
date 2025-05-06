@@ -2,6 +2,8 @@
 # frozen_string_literal: true
 
 require 'rlox/scanner'
+require 'rlox/parser'
+require 'rlox/ast_printer'
 require 'debug'
 
 class Rlox
@@ -48,14 +50,28 @@ class Rlox
       scanner = Scanner.new(source)
       tokens = scanner.scan_tokens
 
-      tokens.each do |token|
-        puts token
-      end
+      parser = Parser.new(tokens)
+      expression = parser.parse
+
+      return if @had_error
+
+      return if expression.nil?
+
+      puts(ASTPrinter.new.print(expression))
     end
 
     #: (Integer, String) -> void
     def error(line, message)
       report(line, '', message)
+    end
+
+    #: (Token, String) -> void
+    def error_token(token, message)
+      if token.type == :EOF
+        report(token.line, ' at end', message)
+      else
+        report(token.line, "at '#{token.lexeme}'", message)
+      end
     end
 
     private

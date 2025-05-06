@@ -36,6 +36,9 @@ class Rlox
     #: untyped
     attr_reader :literal
 
+    #: Integer
+    attr_reader :line
+
     #: (Symbol, String, untyped, Integer) -> void
     def initialize(type, lexeme, literal, line)
       Token.verify_type!(type)
