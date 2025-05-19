@@ -42,7 +42,7 @@ class Rlox
 
     private
 
-    #: (String, Expr) -> String
+    #: (String, *Expr) -> String
     def parenthesize(name, *exprs)
       "(#{name}#{exprs.map { |expr| " #{expr.accept(self)}" }.join})"
     end

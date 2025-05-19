@@ -3,14 +3,10 @@
 
 require 'rlox/expr'
 require 'rlox/runtime_error'
-require 'sorbet-runtime'
 
 class Rlox
+  #: [R = untyped]
   class Interpreter < Expr::Visitor
-    extend T::Generic
-
-    R = type_member { { fixed: T.untyped } }
-
     #: (Expr) -> void
     def interpret(expression)
       value = evaluate(expression)

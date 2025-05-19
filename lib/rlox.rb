@@ -13,7 +13,7 @@ class Rlox
   @had_runtime_error = false #:bool
 
   class << self
-    #: (String) -> void
+    #: (*String) -> void
     def main(*args)
       if args.length > 1
         puts 'Usage: ...'

@@ -107,7 +107,7 @@ class Rlox
       raise error(peek, 'Expect expresison.')
     end
 
-    #: (Symbol) -> bool
+    #: (*Symbol) -> bool
     def match?(*types)
       if types.any? { |type| check?(type) }
         advance

@@ -1,7 +1,6 @@
 # typed: strict
 # frozen_string_literal: true
 
-require 'sorbet-runtime'
 require 'rlox/token'
 
 class Rlox
@@ -12,11 +11,8 @@ class Rlox
     def accept(visitor); end
 
     # @abstract
+    #: [R]
     class Visitor
-      extend T::Generic
-
-      R = type_member
-
       # @abstract
       #: (Binary) -> R
       def visit_binary_expr(expr); end

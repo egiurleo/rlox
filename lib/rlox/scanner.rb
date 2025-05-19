@@ -101,7 +101,7 @@ class Rlox
       @source[@current - 1] #: as !nil
     end
 
-    #: (Symbol, untyped) -> void
+    #: (Symbol, ?untyped) -> void
     def add_token(type, literal = nil)
       Token.verify_type!(type)
 
