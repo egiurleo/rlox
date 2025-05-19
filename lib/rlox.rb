@@ -3,11 +3,14 @@
 
 require 'rlox/scanner'
 require 'rlox/parser'
+require 'rlox/interpreter'
 require 'rlox/ast_printer'
 require 'debug'
 
 class Rlox
+  @interpreter = Interpreter.new #: Interpreter
   @had_error = false #: bool
+  @had_runtime_error = false #:bool
 
   class << self
     #: (String) -> void
@@ -30,7 +33,8 @@ class Rlox
       source = File.read(path)
       run(source)
 
-      exit(1) if @had_error
+      exit(65) if @had_error
+      exit(70) if @had_runtime_error
     end
 
     #: () -> void
@@ -57,7 +61,7 @@ class Rlox
 
       return if expression.nil?
 
-      puts(ASTPrinter.new.print(expression))
+      @interpreter.interpret(expression)
     end
 
     #: (Integer, String) -> void
@@ -72,6 +76,16 @@ class Rlox
       else
         report(token.line, "at '#{token.lexeme}'", message)
       end
+    end
+
+    #: (RuntimeError) -> void
+    def runtime_error(error)
+      warn <<~ERROR
+        #{error.message}
+        [line #{error.token.line}]
+      ERROR
+
+      @had_runtime_error = true
     end
 
     private
