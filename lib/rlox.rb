@@ -55,13 +55,11 @@ class Rlox
       tokens = scanner.scan_tokens
 
       parser = Parser.new(tokens)
-      expression = parser.parse
+      statements = parser.parse
 
       return if @had_error
 
-      return if expression.nil?
-
-      @interpreter.interpret(expression)
+      @interpreter.interpret(statements)
     end
 
     #: (Integer, String) -> void

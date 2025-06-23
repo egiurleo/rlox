@@ -3,6 +3,7 @@
 
 require 'rlox/token'
 require 'rlox/expr'
+require 'rlox/stmt'
 
 class Rlox
   class Parser
@@ -14,18 +15,87 @@ class Rlox
       @current = 0 #: Integer
     end
 
-    #: () -> Expr?
+    #: () -> Array[Stmt]
     def parse
-      expression
-    rescue ParseError
-      nil
+      statements = []
+      statements << declaration until at_end?
+      statements
     end
 
     private
 
     #: () -> Expr
     def expression
-      equality
+      assignment
+    end
+
+    #: () -> Stmt
+    def statement
+      return print_statement if match?(:PRINT)
+      return Block.new(block) if match?(:LEFT_BRACE)
+
+      expression_statement
+    end
+
+    #: () -> Stmt?
+    def declaration
+      return var_declaration if match?(:VAR)
+
+      statement
+    rescue ParseError
+      synchronize
+      nil
+    end
+
+    #: () -> Stmt
+    def var_declaration
+      name = consume(:IDENTIFIER, 'Expect variable name.')
+      initializer = match?(:EQUAL) ? expression : nil
+      consume(:SEMICOLON, "Expect ';' after variable declaration")
+      Var.new(name, initializer)
+    end
+
+    #: () -> Stmt
+    def print_statement
+      value = expression
+      consume(:SEMICOLON, "Expect ';' after value.")
+      Print.new(value)
+    end
+
+    #: () -> Stmt
+    def expression_statement
+      expr = expression
+      consume(:SEMICOLON, "Expect ';' after expression.")
+      Expression.new(expr)
+    end
+
+    #: () -> Array[Stmt]
+    def block
+      statements = []
+
+      statements << declaration while !check?(:RIGHT_BRACE) && !at_end?
+
+      consume(:RIGHT_BRACE, "Expect '}' after block.")
+      statements
+    end
+
+    #: () -> Expr
+    def assignment
+      expr = equality
+
+      if match?(:EQUAL)
+        equals = previous
+        value = assignment
+
+        if expr.is_a?(Variable)
+          name = expr.name
+          return Assign.new(name, value)
+        end
+
+        error(equals, 'Invalid assignment target.')
+      end
+
+      expr
     end
 
     #: () -> Expr
@@ -97,6 +167,7 @@ class Rlox
       return Literal.new(true) if match?(:TRUE)
       return Literal.new(nil) if match?(:NIL)
       return Literal.new(previous.literal) if match?(:NUMBER, :STRING)
+      return Variable.new(previous) if match?(:IDENTIFIER)
 
       if match?(:LEFT_PAREN)
         expr = expression

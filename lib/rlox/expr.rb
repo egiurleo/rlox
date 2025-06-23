@@ -12,7 +12,11 @@ class Rlox
 
     # @abstract
     #: [R]
-    class Visitor
+    module Visitor
+      # @abstract
+      #: (Assign) -> R
+      def visit_assign_expr(expr); end
+
       # @abstract
       #: (Binary) -> R
       def visit_binary_expr(expr); end
@@ -28,6 +32,31 @@ class Rlox
       # @abstract
       #: (Unary) -> R
       def visit_unary_expr(expr); end
+
+      # @abstract
+      #: (Variable) -> R
+      def visit_variable_expr(expr); end
+    end
+  end
+
+  class Assign < Expr
+    #: Token
+    attr_reader :name
+
+    #: Expr
+    attr_reader :value
+
+    #: (Token, Expr) -> void
+    def initialize(name, value)
+      super()
+      @name = name
+      @value = value
+    end
+
+    # @override
+    #: [R] (Visitor[R]) -> R
+    def accept(visitor)
+      visitor.visit_assign_expr(self)
     end
   end
 
@@ -108,6 +137,23 @@ class Rlox
     #: [R] (Visitor[R]) -> R
     def accept(visitor)
       visitor.visit_unary_expr(self)
+    end
+  end
+
+  class Variable < Expr
+    #: Token
+    attr_reader :name
+
+    #: (Token) -> void
+    def initialize(name)
+      super()
+      @name = name
+    end
+
+    # @override
+    #: [R] (Visitor[R]) -> R
+    def accept(visitor)
+      visitor.visit_variable_expr(self)
     end
   end
 end

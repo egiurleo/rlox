@@ -2,15 +2,26 @@
 # frozen_string_literal: true
 
 require 'rlox/expr'
+require 'rlox/stmt'
 require 'rlox/runtime_error'
+require 'rlox/environment'
 
 class Rlox
   #: [R = untyped]
-  class Interpreter < Expr::Visitor
-    #: (Expr) -> void
-    def interpret(expression)
-      value = evaluate(expression)
-      puts value
+  class Interpreter
+    include Expr::Visitor
+    include Stmt::Visitor
+
+    #: () -> void
+    def initialize
+      @environment = Environment.new #: Environment
+    end
+
+    #: (Array[Stmt]) -> void
+    def interpret(statements)
+      statements.each do |statement|
+        execute(statement)
+      end
     rescue RuntimeError => e
       Rlox.runtime_error(e)
     end
@@ -80,6 +91,67 @@ class Rlox
       end
 
       # Implictly returns nil if no case is matched
+    end
+
+    # @override
+    #: (Expression) -> void
+    def visit_expression_stmt(stmt)
+      evaluate(stmt.expression)
+    end
+
+    # @override
+    #: (Print) -> void
+    def visit_print_stmt(stmt)
+      value = evaluate(stmt.expression)
+      puts(value)
+    end
+
+    # @override
+    #: (Var) -> void
+    def visit_var_stmt(stmt)
+      initializer = stmt.initializer
+      value = initializer.nil? ? nil : evaluate(initializer)
+
+      @environment.define(stmt.name.lexeme, value)
+    end
+
+    # @override
+    #: (Assign) -> untyped
+    def visit_assign_expr(expr)
+      value = evaluate(expr.value)
+      @environment.assign(expr.name, value)
+
+      value
+    end
+
+    # @override
+    #: (Variable) -> untyped
+    def visit_variable_expr(expr)
+      @environment.get(expr.name)
+    end
+
+    # @override
+    #: (Block) -> void
+    def visit_block_stmt(stmt)
+      execute_block(stmt.statements, Environment.new(@environment))
+    end
+
+    #: (Array[Stmt], Environment) -> void
+    def execute_block(statements, environment)
+      previous = @environment
+
+      @environment = environment
+
+      statements.each do |statement|
+        execute(statement)
+      end
+    ensure
+      @environment = previous if previous
+    end
+
+    #: (Stmt) -> void
+    def execute(stmt)
+      stmt.accept(self)
     end
 
     private
