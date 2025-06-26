@@ -8,26 +8,36 @@ class Rlox
   class Stmt
     # @abstract
     #: [R] (Visitor[R]) -> R
-    def accept(visitor); end
+    def accept(visitor)
+      raise 'Abstract method called'
+    end
 
     # @abstract
     #: [R]
     module Visitor
       # @abstract
       #: (Block) -> R
-      def visit_block_stmt(stmt); end
+      def visit_block_stmt(stmt)
+        raise 'Abstract method called'
+      end
 
       # @abstract
       #: (Expression) -> R
-      def visit_expression_stmt(stmt); end
+      def visit_expression_stmt(stmt)
+        raise 'Abstract method called'
+      end
 
       # @abstract
       #: (Print) -> R
-      def visit_print_stmt(stmt); end
+      def visit_print_stmt(stmt)
+        raise 'Abstract method called'
+      end
 
       # @abstract
       #: (Var) -> R
-      def visit_var_stmt(stmt); end
+      def visit_var_stmt(stmt)
+        raise 'Abstract method called'
+      end
     end
   end
 

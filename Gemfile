@@ -9,6 +9,6 @@ group :development do
   gem 'rubocop-rspec'
   gem 'rubocop-sorbet'
   gem 'ruby-lsp-rspec', require: false
-  gem 'sorbet'
+  gem 'sorbet-static'
   gem 'tapioca'
 end

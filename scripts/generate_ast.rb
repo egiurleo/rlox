@@ -39,7 +39,9 @@ class GenerateAST
           class #{base_name}
             # @abstract
             #: [R] (Visitor[R]) -> R
-            def accept(visitor); end
+            def accept(visitor)
+              raise "Abstract method called"
+            end
 
             #{define_visitor(base_name, types)}
           end
@@ -96,7 +98,9 @@ class GenerateAST
               <<~CLASS
                 # @abstract
                 #: (#{class_name}) -> R
-                def visit_#{class_name.downcase}_#{base_name.downcase}(#{base_name.downcase}); end
+                def visit_#{class_name.downcase}_#{base_name.downcase}(#{base_name.downcase})
+                  raise "Abstract method called"
+                end
               CLASS
             end.join("\n\n")
           }
