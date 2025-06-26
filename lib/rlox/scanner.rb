@@ -146,7 +146,7 @@ class Rlox
 
       advance
 
-      value = @source[@start + 1...@current - 1]
+      value = @source[(@start + 1)...(@current - 1)]
       add_token(:STRING, value)
     end
 

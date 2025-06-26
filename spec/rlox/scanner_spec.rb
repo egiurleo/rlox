@@ -74,14 +74,14 @@ describe Rlox::Scanner do
 
   private
 
-  def expect_token(token, type, lexeme = nil, literal = nil)
+  define_method(:expect_token) do |token, type, lexeme = nil, literal = nil|
     expect(token).to be_a(Rlox::Token)
     expect(token.type).to eq(type)
     expect(token.lexeme).to eq(lexeme) if lexeme
     expect(token.literal).to eq(literal) if literal
   end
 
-  def expect_eof(token)
+  define_method(:expect_eof) do |token|
     expect_token(token, :EOF)
   end
 end

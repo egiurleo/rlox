@@ -8,7 +8,7 @@ class Rlox
   class Expr
     # @abstract
     #: [R] (Visitor[R]) -> R
-    def accept(visitor)
+    def accept(_visitor)
       raise 'Abstract method called'
     end
 
@@ -17,37 +17,37 @@ class Rlox
     module Visitor
       # @abstract
       #: (Assign) -> R
-      def visit_assign_expr(expr)
+      def visit_assign_expr(_expr)
         raise 'Abstract method called'
       end
 
       # @abstract
       #: (Binary) -> R
-      def visit_binary_expr(expr)
+      def visit_binary_expr(_expr)
         raise 'Abstract method called'
       end
 
       # @abstract
       #: (Grouping) -> R
-      def visit_grouping_expr(expr)
+      def visit_grouping_expr(_expr)
         raise 'Abstract method called'
       end
 
       # @abstract
       #: (Literal) -> R
-      def visit_literal_expr(expr)
+      def visit_literal_expr(_expr)
         raise 'Abstract method called'
       end
 
       # @abstract
       #: (Unary) -> R
-      def visit_unary_expr(expr)
+      def visit_unary_expr(_expr)
         raise 'Abstract method called'
       end
 
       # @abstract
       #: (Variable) -> R
-      def visit_variable_expr(expr)
+      def visit_variable_expr(_expr)
         raise 'Abstract method called'
       end
     end

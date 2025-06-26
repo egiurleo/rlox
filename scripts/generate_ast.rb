@@ -94,7 +94,7 @@ class GenerateAST
         #: [R]
         module Visitor
           #{
-            types.map do |class_name, fields|
+            types.map do |class_name, _fields|
               <<~CLASS
                 # @abstract
                 #: (#{class_name}) -> R
