@@ -5,6 +5,9 @@ require:
 AllCops:
   NewCops: enable
 
+Layout/HashAlignment:
+  Enabled: false
+
 Layout/LeadingCommentSpace:
   Enabled: false
 

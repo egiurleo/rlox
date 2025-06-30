@@ -33,6 +33,19 @@ class Rlox
     end
 
     # @override
+    #: (Logical) -> untyped
+    def visit_logical_expr(expr)
+      left = evaluate(expr.left)
+      if expr.operator.type == :OR
+        return left if !!left # rubocop:disable Style/DoubleNegation
+      else
+        return !left unless left
+      end
+
+      evaluate(expr.right)
+    end
+
+    # @override
     #: (Grouping) -> untyped
     def visit_grouping_expr(expr)
       evaluate(expr.expression)
@@ -100,6 +113,18 @@ class Rlox
     end
 
     # @override
+    #: (If) -> void
+    def visit_if_stmt(stmt)
+      else_branch = stmt.else_branch
+
+      if evaluate(stmt.condition)
+        execute(stmt.then_branch)
+      elsif else_branch
+        execute(else_branch)
+      end
+    end
+
+    # @override
     #: (Print) -> void
     def visit_print_stmt(stmt)
       value = evaluate(stmt.expression)
@@ -113,6 +138,12 @@ class Rlox
       value = initializer.nil? ? nil : evaluate(initializer)
 
       @environment.define(stmt.name.lexeme, value)
+    end
+
+    # @override
+    #: (While) -> void
+    def visit_while_stmt(stmt)
+      execute(stmt.body) while evaluate(stmt.condition)
     end
 
     # @override

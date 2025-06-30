@@ -40,6 +40,12 @@ class Rlox
       end
 
       # @abstract
+      #: (Logical) -> R
+      def visit_logical_expr(_expr)
+        raise 'Abstract method called'
+      end
+
+      # @abstract
       #: (Unary) -> R
       def visit_unary_expr(_expr)
         raise 'Abstract method called'
@@ -130,6 +136,31 @@ class Rlox
     #: [R] (Visitor[R]) -> R
     def accept(visitor)
       visitor.visit_literal_expr(self)
+    end
+  end
+
+  class Logical < Expr
+    #: Expr
+    attr_reader :left
+
+    #: Token
+    attr_reader :operator
+
+    #: Expr
+    attr_reader :right
+
+    #: (Expr, Token, Expr) -> void
+    def initialize(left, operator, right)
+      super()
+      @left = left
+      @operator = operator
+      @right = right
+    end
+
+    # @override
+    #: [R] (Visitor[R]) -> R
+    def accept(visitor)
+      visitor.visit_logical_expr(self)
     end
   end
 

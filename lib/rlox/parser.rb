@@ -31,10 +31,63 @@ class Rlox
 
     #: () -> Stmt
     def statement
+      return for_statement if match?(:FOR)
+      return if_statement if match?(:IF)
       return print_statement if match?(:PRINT)
+      return while_statement if match?(:WHILE)
       return Block.new(block) if match?(:LEFT_BRACE)
 
       expression_statement
+    end
+
+    #: () -> Stmt
+    def for_statement
+      consume(:LEFT_PAREN, "Expect '(' after 'for'.")
+
+      initializer = if match?(:SEMICOLON)
+                      nil
+                    elsif match?(:VAR)
+                      var_declaration
+                    else
+                      expression_statement
+                    end
+
+      condition = if check?(:SEMICOLON)
+                    Literal.new(true)
+                  else
+                    expression
+                  end
+
+      consume(:SEMICOLON, "Expect ';' after loop condition.")
+
+      increment = if check?(:RIGHT_PAREN)
+                    nil
+                  else
+                    expression
+                  end
+
+      consume(:RIGHT_PAREN, "Expect ')' after for clauses.")
+
+      body = statement
+
+      body = Block.new([body, Expression.new(increment)]) unless increment.nil?
+      body = While.new(condition, body)
+      body = Block.new([initializer, body]) unless initializer.nil?
+
+      body
+    end
+
+    #: () -> Stmt
+    def if_statement
+      consume(:LEFT_PAREN, "Expect '(' after 'if'.")
+      condition = expression
+      consume(:RIGHT_PAREN, "Expect ')' after condition.")
+
+      then_branch = statement
+      else_branch = nil
+      else_branch = statement if match?(:ELSE)
+
+      If.new(condition, then_branch, else_branch)
     end
 
     #: () -> Stmt?
@@ -53,6 +106,16 @@ class Rlox
       initializer = match?(:EQUAL) ? expression : nil
       consume(:SEMICOLON, "Expect ';' after variable declaration")
       Var.new(name, initializer)
+    end
+
+    #: () -> Stmt
+    def while_statement
+      consume(:LEFT_PAREN, "Expect '(' after 'while'.")
+      condition = expression
+      consume(:RIGHT_PAREN, "Expect ')' after 'while'.")
+      body = statement
+
+      While.new(condition, body)
     end
 
     #: () -> Stmt
@@ -81,7 +144,7 @@ class Rlox
 
     #: () -> Expr
     def assignment
-      expr = equality
+      expr = _or
 
       if match?(:EQUAL)
         equals = previous
@@ -93,6 +156,32 @@ class Rlox
         end
 
         error(equals, 'Invalid assignment target.')
+      end
+
+      expr
+    end
+
+    #: () -> Expr
+    def _or
+      expr = _and
+
+      while match?(:OR)
+        operator = previous
+        right = _and
+        expr = Logical.new(expr, operator, right)
+      end
+
+      expr
+    end
+
+    #: () -> Expr
+    def _and
+      expr = equality
+
+      while match?(:AND)
+        operator = previous
+        right = equality
+        expr = Logical.new(expr, operator, right)
       end
 
       expr

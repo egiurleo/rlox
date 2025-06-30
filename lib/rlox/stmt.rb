@@ -28,6 +28,12 @@ class Rlox
       end
 
       # @abstract
+      #: (If) -> R
+      def visit_if_stmt(_stmt)
+        raise 'Abstract method called'
+      end
+
+      # @abstract
       #: (Print) -> R
       def visit_print_stmt(_stmt)
         raise 'Abstract method called'
@@ -36,6 +42,12 @@ class Rlox
       # @abstract
       #: (Var) -> R
       def visit_var_stmt(_stmt)
+        raise 'Abstract method called'
+      end
+
+      # @abstract
+      #: (While) -> R
+      def visit_while_stmt(_stmt)
         raise 'Abstract method called'
       end
     end
@@ -75,6 +87,31 @@ class Rlox
     end
   end
 
+  class If < Stmt
+    #: Expr
+    attr_reader :condition
+
+    #: Stmt
+    attr_reader :then_branch
+
+    #: Stmt?
+    attr_reader :else_branch
+
+    #: (Expr, Stmt, Stmt?) -> void
+    def initialize(condition, then_branch, else_branch)
+      super()
+      @condition = condition
+      @then_branch = then_branch
+      @else_branch = else_branch
+    end
+
+    # @override
+    #: [R] (Visitor[R]) -> R
+    def accept(visitor)
+      visitor.visit_if_stmt(self)
+    end
+  end
+
   class Print < Stmt
     #: Expr
     attr_reader :expression
@@ -110,6 +147,27 @@ class Rlox
     #: [R] (Visitor[R]) -> R
     def accept(visitor)
       visitor.visit_var_stmt(self)
+    end
+  end
+
+  class While < Stmt
+    #: Expr
+    attr_reader :condition
+
+    #: Stmt
+    attr_reader :body
+
+    #: (Expr, Stmt) -> void
+    def initialize(condition, body)
+      super()
+      @condition = condition
+      @body = body
+    end
+
+    # @override
+    #: [R] (Visitor[R]) -> R
+    def accept(visitor)
+      visitor.visit_while_stmt(self)
     end
   end
 end

@@ -6,19 +6,22 @@ class GenerateAST
     #: (String) -> void
     def main(output_dir)
       define_ast(output_dir, 'Expr', {
-                   Assign: { name: 'Token', value: 'Expr' },
-                   Binary: { left: 'Expr', operator: 'Token', right: 'Expr' },
-                   Grouping: { expression: 'Expr' },
-                   Literal: { value: 'untyped' },
-                   Unary: { operator: 'Token', right: 'Expr' },
-                   Variable: { name: 'Token' }
+                   Assign:    { name: 'Token', value: 'Expr' },
+                   Binary:    { left: 'Expr', operator: 'Token', right: 'Expr' },
+                   Grouping:  { expression: 'Expr' },
+                   Literal:   { value: 'untyped' },
+                   Logical:   { left: 'Expr', operator: 'Token', right: 'Expr' },
+                   Unary:     { operator: 'Token', right: 'Expr' },
+                   Variable:  { name: 'Token' }
                  })
 
       define_ast(output_dir, 'Stmt', {
-                   Block: { statements: 'Array[Stmt]' },
-                   Expression: { expression: 'Expr' },
-                   Print: { expression: 'Expr' },
-                   Var: { name: 'Token', initializer: 'Expr?' }
+                   Block:       { statements: 'Array[Stmt]' },
+                   Expression:  { expression: 'Expr' },
+                   If:          { condition: 'Expr', then_branch: 'Stmt', else_branch: 'Stmt?' },
+                   Print:       { expression: 'Expr' },
+                   Var:         { name: 'Token', initializer: 'Expr?' },
+                   While:       { condition: 'Expr', body: 'Stmt' }
                  })
     end
 
