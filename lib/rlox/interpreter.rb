@@ -39,7 +39,7 @@ class Rlox
       if expr.operator.type == :OR
         return left if !!left # rubocop:disable Style/DoubleNegation
       else
-        return !left unless left
+        return left if !left # rubocop:disable Style/NegatedIf, Style/IfInsideElse
       end
 
       evaluate(expr.right)
