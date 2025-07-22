@@ -28,6 +28,12 @@ class Rlox
       end
 
       # @abstract
+      #: (Function) -> R
+      def visit_function_stmt(_stmt)
+        raise 'Abstract method called'
+      end
+
+      # @abstract
       #: (If) -> R
       def visit_if_stmt(_stmt)
         raise 'Abstract method called'
@@ -36,6 +42,12 @@ class Rlox
       # @abstract
       #: (Print) -> R
       def visit_print_stmt(_stmt)
+        raise 'Abstract method called'
+      end
+
+      # @abstract
+      #: (Return) -> R
+      def visit_return_stmt(_stmt)
         raise 'Abstract method called'
       end
 
@@ -87,6 +99,31 @@ class Rlox
     end
   end
 
+  class Function < Stmt
+    #: Token
+    attr_reader :name
+
+    #: Array[Token]
+    attr_reader :params
+
+    #: Array[Stmt]
+    attr_reader :body
+
+    #: (Token, Array[Token], Array[Stmt]) -> void
+    def initialize(name, params, body)
+      super()
+      @name = name
+      @params = params
+      @body = body
+    end
+
+    # @override
+    #: [R] (Visitor[R]) -> R
+    def accept(visitor)
+      visitor.visit_function_stmt(self)
+    end
+  end
+
   class If < Stmt
     #: Expr
     attr_reader :condition
@@ -126,6 +163,27 @@ class Rlox
     #: [R] (Visitor[R]) -> R
     def accept(visitor)
       visitor.visit_print_stmt(self)
+    end
+  end
+
+  class Return < Stmt
+    #: Token
+    attr_reader :keyword
+
+    #: Expr?
+    attr_reader :value
+
+    #: (Token, Expr?) -> void
+    def initialize(keyword, value)
+      super()
+      @keyword = keyword
+      @value = value
+    end
+
+    # @override
+    #: [R] (Visitor[R]) -> R
+    def accept(visitor)
+      visitor.visit_return_stmt(self)
     end
   end
 

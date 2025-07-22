@@ -4,7 +4,9 @@
 require 'rlox/expr'
 require 'rlox/stmt'
 require 'rlox/runtime_error'
+require 'rlox/return_error'
 require 'rlox/environment'
+require 'rlox/callable'
 
 class Rlox
   #: [R = untyped]
@@ -12,9 +14,15 @@ class Rlox
     include Expr::Visitor
     include Stmt::Visitor
 
+    #: Environment
+    attr_reader :globals
+
     #: () -> void
     def initialize
-      @environment = Environment.new #: Environment
+      @globals = Environment.new #: Environment
+      @environment = @globals #: Environment
+
+      @globals.define('clock', NativeClock.new)
     end
 
     #: (Array[Stmt]) -> void
@@ -107,9 +115,36 @@ class Rlox
     end
 
     # @override
+    #: (Call) -> void
+    def visit_call_expr(expr)
+      callee = evaluate(expr.callee)
+
+      arguments = expr.arguments.map do |arg|
+        evaluate(arg)
+      end
+
+      raise RuntimeError.new(expr.paren, 'Can only call functions and classes.') unless callee.is_a?(Callable)
+
+      function = callee # as Callable
+
+      if arguments.length != function.arity
+        raise RuntimeError.new(expr.paren, "Expected #{function.arity} arguments but got #{arguments.size}.")
+      end
+
+      function.call(self, arguments)
+    end
+
+    # @override
     #: (Expression) -> void
     def visit_expression_stmt(stmt)
       evaluate(stmt.expression)
+    end
+
+    # @override
+    #: (Function) -> void
+    def visit_function_stmt(stmt)
+      function = LoxFunction.new(stmt, @environment)
+      @environment.define(stmt.name.lexeme, function)
     end
 
     # @override
@@ -129,6 +164,17 @@ class Rlox
     def visit_print_stmt(stmt)
       value = evaluate(stmt.expression)
       puts(value)
+    end
+
+    # @override
+    #: (Return) -> void
+    def visit_return_stmt(stmt)
+      stmt_value = stmt.value
+
+      value = nil
+      value = evaluate(stmt_value) if stmt_value
+
+      raise ReturnError.new(value, '')
     end
 
     # @override

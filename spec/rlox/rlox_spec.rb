@@ -69,6 +69,53 @@ RSpec.describe Rlox do
     expect(run_lox('var x; print x;')).to eq("\n")
   end
 
+  it 'executes a user-defined function' do
+    result = run_lox(<<~LOX)
+      fun sayHi(first, last) {
+        print "Hi, " + first + " " + last + "!";
+      }
+
+      sayHi("Dear", "Reader");
+    LOX
+
+    expect(result).to eq("Hi, Dear Reader!\n")
+  end
+
+  it 'executes a function with a return value' do
+    result = run_lox(<<~LOX)
+      fun fib(n) {
+        if (n <= 1) return n;
+        return fib(n - 2) + fib(n - 1);
+      }
+
+      for (var i = 0; i < 5; i = i + 1) {
+        print fib(i);
+      }
+    LOX
+
+    expect(result).to eq("0.0\n1.0\n1.0\n2.0\n3.0\n")
+  end
+
+  it 'executes closures' do
+    result = run_lox(<<~LOX)
+      fun makeCounter() {
+        var i = 0;
+        fun count() {
+          i = i + 1;
+          print i;
+        }
+
+        return count;
+      }
+
+      var counter = makeCounter();
+      counter();
+      counter();
+    LOX
+
+    expect(result).to eq("1.0\n2.0\n")
+  end
+
   it 'reports runtime errors for undefined variables' do
     expect do
       run_lox('print y;')

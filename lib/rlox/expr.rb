@@ -28,6 +28,12 @@ class Rlox
       end
 
       # @abstract
+      #: (Call) -> R
+      def visit_call_expr(_expr)
+        raise 'Abstract method called'
+      end
+
+      # @abstract
       #: (Grouping) -> R
       def visit_grouping_expr(_expr)
         raise 'Abstract method called'
@@ -102,6 +108,31 @@ class Rlox
     #: [R] (Visitor[R]) -> R
     def accept(visitor)
       visitor.visit_binary_expr(self)
+    end
+  end
+
+  class Call < Expr
+    #: Expr
+    attr_reader :callee
+
+    #: Token
+    attr_reader :paren
+
+    #: Array[Expr]
+    attr_reader :arguments
+
+    #: (Expr, Token, Array[Expr]) -> void
+    def initialize(callee, paren, arguments)
+      super()
+      @callee = callee
+      @paren = paren
+      @arguments = arguments
+    end
+
+    # @override
+    #: [R] (Visitor[R]) -> R
+    def accept(visitor)
+      visitor.visit_call_expr(self)
     end
   end
 

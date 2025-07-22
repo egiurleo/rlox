@@ -31,10 +31,11 @@ class Rlox
 
     #: () -> Stmt
     def statement
-      return for_statement if match?(:FOR)
-      return if_statement if match?(:IF)
-      return print_statement if match?(:PRINT)
-      return while_statement if match?(:WHILE)
+      return for_statement    if match?(:FOR)
+      return if_statement     if match?(:IF)
+      return print_statement  if match?(:PRINT)
+      return return_statement if match?(:RETURN)
+      return while_statement  if match?(:WHILE)
       return Block.new(block) if match?(:LEFT_BRACE)
 
       expression_statement
@@ -92,6 +93,7 @@ class Rlox
 
     #: () -> Stmt?
     def declaration
+      return function('function') if match?(:FUN)
       return var_declaration if match?(:VAR)
 
       statement
@@ -126,10 +128,44 @@ class Rlox
     end
 
     #: () -> Stmt
+    def return_statement
+      keyword = previous
+
+      value = nil
+      value = expression unless check?(:SEMICOLON)
+
+      consume(:SEMICOLON, "Expect ';' after return value.")
+      Return.new(keyword, value)
+    end
+
+    #: () -> Stmt
     def expression_statement
       expr = expression
       consume(:SEMICOLON, "Expect ';' after expression.")
       Expression.new(expr)
+    end
+
+    #: (String) -> Function
+    def function(kind)
+      name = consume(:IDENTIFIER, "Expect #{kind} name.")
+      consume(:LEFT_PAREN, "Expect '(' after #{kind} name.")
+
+      parameters = []
+
+      unless check?(:RIGHT_PAREN)
+        parameters << consume(:IDENTIFIER, 'Expect parameter name')
+        while match?(:COMMA)
+          error(peek, "Can't have more than 255 parameters.") if parameters.length >= 255
+
+          parameters << consume(:IDENTIFIER, 'Expect parameter name.')
+        end
+      end
+
+      consume(:RIGHT_PAREN, "Expect ')' after parameters.")
+      consume(:LEFT_BRACE, "Expect '{' before #{kind} body.")
+      body = block
+
+      Function.new(name, parameters, body)
     end
 
     #: () -> Array[Stmt]
@@ -247,7 +283,38 @@ class Rlox
         return Unary.new(operator, right)
       end
 
-      primary
+      call
+    end
+
+    #: () -> Expr
+    def call
+      expr = primary
+
+      loop do
+        break unless match?(:LEFT_PAREN)
+
+        expr = finish_call(expr)
+      end
+
+      expr
+    end
+
+    #: (Expr) -> Expr
+    def finish_call(callee)
+      arguments = []
+
+      unless check?(:RIGHT_PAREN)
+        arguments << expression
+
+        while match?(:COMMA)
+          error(peek, "Can't have more than 255 arguments.") if arguments.size >= 255
+          arguments << expression
+        end
+      end
+
+      paren = consume(:RIGHT_PAREN, "Expect ')' after arguments.")
+
+      Call.new(callee, paren, arguments)
     end
 
     #: () -> Expr
