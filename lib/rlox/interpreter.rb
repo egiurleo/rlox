@@ -276,11 +276,9 @@ class Rlox
     def lookup_variable(name, expr)
       distance = @locals[expr]
 
-      if distance
-        return @environment.get_at(distance, name.lexeme)
-      else
-        return @globals.get(name)
-      end
+      return @environment.get_at(distance, name.lexeme) if distance
+
+      @globals.get(name)
     end
   end
 end

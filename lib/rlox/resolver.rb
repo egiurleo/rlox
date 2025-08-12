@@ -1,5 +1,6 @@
 # typed: strict
 # frozen_string_literal: true
+
 require 'debug'
 
 class Rlox
@@ -8,7 +9,7 @@ class Rlox
     include Expr::Visitor
     include Stmt::Visitor
 
-    FUNCTION_TYPES = [:NONE, :FUNCTION]
+    FUNCTION_TYPES = %i[NONE FUNCTION].freeze
 
     #: (Interpreter) -> void
     def initialize(interpreter)
@@ -87,9 +88,7 @@ class Rlox
     # @override
     #: (Return) -> void
     def visit_return_stmt(stmt)
-      if @current_function == :NONE
-        Rlox.error(stmt.keyword, "Can't return from top-level code.")
-      end
+      Rlox.error(stmt.keyword, "Can't return from top-level code.") if @current_function == :NONE
 
       value = stmt.value
       resolve(value) if value
@@ -171,9 +170,7 @@ class Rlox
 
       scope = @scopes.last #: as Hash[String, bool]
 
-      if scope.key?(name.lexeme)
-        Rlox.error(name, "Already a variable with this name in this scope.")
-      end
+      Rlox.error(name, 'Already a variable with this name in this scope.') if scope.key?(name.lexeme)
 
       scope[name.lexeme] = false
     end
@@ -192,7 +189,7 @@ class Rlox
         scope = @scopes[i] #: as Hash[String, bool]
         if scope.key?(name.lexeme)
           @interpreter.resolve(expr, @scopes.length - 1 - i)
-          return
+          break
         end
       end
     end
