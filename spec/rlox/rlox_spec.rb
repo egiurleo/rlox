@@ -127,4 +127,21 @@ RSpec.describe Rlox do
       run_lox('print 1 + "a";')
     end.to output(/Operands must be two numbers or two strings/).to_stderr
   end
+
+  it 'evaluates closures' do
+    result = run_lox(<<~LOX)
+      var a = "global";
+      {
+        fun showA() {
+          print a;
+        }
+
+        showA();
+        var a = "block";
+        showA();
+      }
+    LOX
+
+    expect(result).to eq("global\nglobal\n")
+  end
 end

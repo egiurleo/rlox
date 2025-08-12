@@ -21,6 +21,7 @@ class Rlox
     def initialize
       @globals = Environment.new #: Environment
       @environment = @globals #: Environment
+      @locals = {} #: Hash[Expr, Integer]
 
       @globals.define('clock', NativeClock.new)
     end
@@ -196,6 +197,15 @@ class Rlox
     #: (Assign) -> untyped
     def visit_assign_expr(expr)
       value = evaluate(expr.value)
+
+      distance = @locals[expr]
+
+      if distance
+        @environment.assign_at(distance, expr.name, value)
+      else
+        @globals.assign(expr.name, value)
+      end
+
       @environment.assign(expr.name, value)
 
       value
@@ -204,7 +214,7 @@ class Rlox
     # @override
     #: (Variable) -> untyped
     def visit_variable_expr(expr)
-      @environment.get(expr.name)
+      lookup_variable(expr.name, expr)
     end
 
     # @override
@@ -231,6 +241,11 @@ class Rlox
       stmt.accept(self)
     end
 
+    #: (Expr, Integer) -> void
+    def resolve(expr, depth)
+      @locals[expr] = depth
+    end
+
     private
 
     #: (Expr) -> untyped
@@ -255,6 +270,17 @@ class Rlox
       return if left.is_a?(Float) && right.is_a?(Float)
 
       raise RuntimeError.new(operator, 'Operands must be numbers.')
+    end
+
+    #: (Token, Expr) -> untyped
+    def lookup_variable(name, expr)
+      distance = @locals[expr]
+
+      if distance
+        return @environment.get_at(distance, name.lexeme)
+      else
+        return @globals.get(name)
+      end
     end
   end
 end

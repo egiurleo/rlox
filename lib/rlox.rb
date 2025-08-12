@@ -4,6 +4,7 @@
 require 'rlox/scanner'
 require 'rlox/parser'
 require 'rlox/interpreter'
+require 'rlox/resolver'
 require 'rlox/ast_printer'
 require 'debug'
 
@@ -59,20 +60,26 @@ class Rlox
 
       return if @had_error
 
+      resolver = Resolver.new(@interpreter)
+      resolver.resolve(statements)
+
+      return if @had_error #: as bool
+
       @interpreter.interpret(statements)
     end
 
-    #: (Integer, String) -> void
-    def error(line, message)
-      report(line, '', message)
-    end
-
-    #: (Token, String) -> void
-    def error_token(token, message)
-      if token.type == :EOF
-        report(token.line, ' at end', message)
+    #: (Integer | Token, String) -> void
+    def error(line_or_token, message)
+      if line_or_token.is_a?(Integer)
+        line = line_or_token
+        report(line, '', message)
       else
-        report(token.line, "at '#{token.lexeme}'", message)
+        token = line_or_token
+        if token.type == :EOF
+          report(token.line, ' at end', message)
+        else
+          report(token.line, "at '#{token.lexeme}'", message)
+        end
       end
     end
 

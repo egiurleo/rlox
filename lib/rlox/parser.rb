@@ -381,7 +381,7 @@ class Rlox
 
     #: (Token, String) -> ParseError
     def error(token, message)
-      Rlox.error_token(token, message)
+      Rlox.error(token, message)
       ParseError.new
     end
 
