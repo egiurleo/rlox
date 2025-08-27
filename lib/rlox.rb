@@ -58,12 +58,12 @@ class Rlox
       parser = Parser.new(tokens)
       statements = parser.parse
 
-      return if @had_error
+      return if had_error
 
       resolver = Resolver.new(@interpreter)
       resolver.resolve(statements)
 
-      return if @had_error #: as bool
+      return if had_error
 
       @interpreter.interpret(statements)
     end
@@ -99,6 +99,11 @@ class Rlox
     def report(line, where, message)
       warn("[line #{line}] Error#{where}: #{message}")
       @had_error = true
+    end
+
+    #: () -> bool
+    def had_error
+      @had_error
     end
   end
 end
