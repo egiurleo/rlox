@@ -58,12 +58,12 @@ class Rlox
       parser = Parser.new(tokens)
       statements = parser.parse
 
-      return if had_error
+      return if had_error?
 
       resolver = Resolver.new(@interpreter)
       resolver.resolve(statements)
 
-      return if had_error
+      return if had_error?
 
       @interpreter.interpret(statements)
     end
@@ -102,7 +102,7 @@ class Rlox
     end
 
     #: () -> bool
-    def had_error
+    def had_error?
       @had_error
     end
   end

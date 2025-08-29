@@ -93,6 +93,7 @@ class Rlox
 
     #: () -> Stmt?
     def declaration
+      return class_declaration if match?(:CLASS)
       return function('function') if match?(:FUN)
       return var_declaration if match?(:VAR)
 
@@ -100,6 +101,19 @@ class Rlox
     rescue ParseError
       synchronize
       nil
+    end
+
+    #: () -> Stmt
+    def class_declaration
+      name = consume(:IDENTIFIER, 'Expect class name.')
+      consume(:LEFT_BRACE, "Expect '{' before class body.")
+
+      methods = [] #: Array[Function]
+      methods << function('method') while !check?(:RIGHT_BRACE) && !at_end?
+
+      consume(:RIGHT_BRACE, "Expect '}' after class body.")
+
+      Class.new(name, methods)
     end
 
     #: () -> Stmt
@@ -189,6 +203,8 @@ class Rlox
         if expr.is_a?(Variable)
           name = expr.name
           return Assign.new(name, value)
+        elsif expr.is_a?(Get)
+          return Set.new(expr.object, expr.name, value)
         end
 
         error(equals, 'Invalid assignment target.')
@@ -291,9 +307,14 @@ class Rlox
       expr = primary
 
       loop do
-        break unless match?(:LEFT_PAREN)
-
-        expr = finish_call(expr)
+        if match?(:LEFT_PAREN)
+          expr = finish_call(expr)
+        elsif match?(:DOT)
+          name = consume(:IDENTIFIER, "Expect property name after '.'.")
+          expr = Get.new(expr, name)
+        else
+          break
+        end
       end
 
       expr
@@ -323,6 +344,7 @@ class Rlox
       return Literal.new(true) if match?(:TRUE)
       return Literal.new(nil) if match?(:NIL)
       return Literal.new(previous.literal) if match?(:NUMBER, :STRING)
+      return This.new(previous) if match?(:THIS)
       return Variable.new(previous) if match?(:IDENTIFIER)
 
       if match?(:LEFT_PAREN)

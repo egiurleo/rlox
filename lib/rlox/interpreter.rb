@@ -7,6 +7,7 @@ require 'rlox/runtime_error'
 require 'rlox/return_error'
 require 'rlox/environment'
 require 'rlox/callable'
+require 'rlox/lox_class'
 
 class Rlox
   #: [R = untyped]
@@ -52,6 +53,25 @@ class Rlox
       end
 
       evaluate(expr.right)
+    end
+
+    # @override
+    #: (Set) -> untyped
+    def visit_set_expr(expr)
+      object = evaluate(expr.object)
+
+      raise RuntimeError.new(expr.name, 'Only instances have fields.') unless object.is_a?(LoxInstance)
+
+      value = evaluate(expr.value)
+      object.set(expr.name, value)
+
+      value
+    end
+
+    # @override
+    #: (This) -> untyped
+    def visit_this_expr(expr)
+      lookup_variable(expr.keyword, expr)
     end
 
     # @override
@@ -136,6 +156,15 @@ class Rlox
     end
 
     # @override
+    #: (Get) -> void
+    def visit_get_expr(expr)
+      object = evaluate(expr.object)
+      return object.get(expr.name) if object.is_a?(LoxInstance)
+
+      raise RuntimeError.new(expr.name, 'Only instances have properties.')
+    end
+
+    # @override
     #: (Expression) -> void
     def visit_expression_stmt(stmt)
       evaluate(stmt.expression)
@@ -144,7 +173,7 @@ class Rlox
     # @override
     #: (Function) -> void
     def visit_function_stmt(stmt)
-      function = LoxFunction.new(stmt, @environment)
+      function = LoxFunction.new(stmt, @environment, false)
       @environment.define(stmt.name.lexeme, function)
     end
 
@@ -221,6 +250,21 @@ class Rlox
     #: (Block) -> void
     def visit_block_stmt(stmt)
       execute_block(stmt.statements, Environment.new(@environment))
+    end
+
+    # @override
+    #: (Class) -> void
+    def visit_class_stmt(stmt)
+      @environment.define(stmt.name.lexeme, nil)
+
+      methods = {} #: Hash[String, LoxFunction]
+      stmt.methods.each do |method|
+        function = LoxFunction.new(method, @environment, method.name.lexeme == 'init')
+        methods[method.name.lexeme] = function
+      end
+
+      klass = LoxClass.new(stmt.name.lexeme, methods)
+      @environment.assign(stmt.name, klass)
     end
 
     #: (Array[Stmt], Environment) -> void

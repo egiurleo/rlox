@@ -81,6 +81,18 @@ RSpec.describe Rlox do
     expect(result).to eq("Hi, Dear Reader!\n")
   end
 
+  it 'executes a simple function' do
+    result = run_lox(<<~LOX)
+      fun one() {
+        return 1;
+      }
+
+      print one();
+    LOX
+
+    expect(result).to eq("1.0\n")
+  end
+
   it 'executes a function with a return value' do
     result = run_lox(<<~LOX)
       fun fib(n) {
@@ -143,5 +155,39 @@ RSpec.describe Rlox do
     LOX
 
     expect(result).to eq("global\nglobal\n")
+  end
+
+  it 'calls instance methods' do
+    result = run_lox(<<~LOX)
+      class Bacon {
+        init() {}
+
+        eat() {
+          print "Crunch crunch crunch!";
+        }
+      }
+
+      Bacon().eat();
+    LOX
+
+    expect(result).to eq("Crunch crunch crunch!\n")
+  end
+
+  it 'allows instances to store state' do
+    result = run_lox(<<~LOX)
+      class Cake {
+        init() { }
+        taste() {
+          var adjective = "delicious";
+          print "The " + this.flavor + " cake is " + adjective + "!";
+        }
+      }
+
+      var cake = Cake();
+      cake.flavor = "German chocolate";
+      cake.taste();
+    LOX
+
+    expect(result).to eq("The German chocolate cake is delicious!\n")
   end
 end

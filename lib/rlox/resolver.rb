@@ -9,13 +9,15 @@ class Rlox
     include Expr::Visitor
     include Stmt::Visitor
 
-    FUNCTION_TYPES = %i[NONE FUNCTION].freeze
+    FUNCTION_TYPES = %i[NONE FUNCTION METHOD INITIALIZER].freeze
+    CLASS_TYPES = %i[NONE CLASS].freeze
 
     #: (Interpreter) -> void
     def initialize(interpreter)
       @interpreter = interpreter
       @scopes = [] #: Array[Hash[String, bool]]
       @current_function = :NONE #: Symbol
+      @current_class = :NONE #: Symbol
     end
 
     # @override
@@ -24,6 +26,30 @@ class Rlox
       begin_scope
       resolve(stmt.statements)
       end_scope
+    end
+
+    # @override
+    #: (Class) -> void
+    def visit_class_stmt(stmt)
+      enclosing_class = @current_class
+      @current_class = :CLASS
+
+      declare(stmt.name)
+      define(stmt.name)
+
+      begin_scope
+      innermost_scope = @scopes.last #: as Hash[String, bool]
+      innermost_scope['this'] = true
+
+      stmt.methods.each do |method|
+        declaration = :METHOD
+        declaration = :INITIALIZER if method.name.lexeme == 'init'
+
+        resolve_function(method, declaration)
+      end
+
+      end_scope
+      @current_class = enclosing_class
     end
 
     # @override
@@ -91,7 +117,10 @@ class Rlox
       Rlox.error(stmt.keyword, "Can't return from top-level code.") if @current_function == :NONE
 
       value = stmt.value
-      resolve(value) if value
+      return unless value
+
+      Rlox.error(stmt.keyword, "Can't return a value from an initializer.") if @current_function == :INITIALIZER
+      resolve(value)
     end
 
     # @override
@@ -119,6 +148,12 @@ class Rlox
     end
 
     # @override
+    #: (Get) -> void
+    def visit_get_expr(expr)
+      resolve(expr.object)
+    end
+
+    # @override
     #: (Grouping) -> void
     def visit_grouping_expr(expr)
       resolve(expr.expression)
@@ -133,6 +168,24 @@ class Rlox
     def visit_logical_expr(expr)
       resolve(expr.left)
       resolve(expr.right)
+    end
+
+    # @override
+    #: (Set) -> void
+    def visit_set_expr(expr)
+      resolve(expr.value)
+      resolve(expr.object)
+    end
+
+    # @override
+    #: (This) -> void
+    def visit_this_expr(expr)
+      if @current_class == :NONE
+        Rlox.error(expr.keyword, "Can't use 'this' outside of a class.")
+        return
+      end
+
+      resolve_local(expr, expr.keyword)
     end
 
     # @override

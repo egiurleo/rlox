@@ -22,6 +22,12 @@ class Rlox
       end
 
       # @abstract
+      #: (Class) -> R
+      def visit_class_stmt(_stmt)
+        raise 'Abstract method called'
+      end
+
+      # @abstract
       #: (Expression) -> R
       def visit_expression_stmt(_stmt)
         raise 'Abstract method called'
@@ -79,6 +85,27 @@ class Rlox
     #: [R] (Visitor[R]) -> R
     def accept(visitor)
       visitor.visit_block_stmt(self)
+    end
+  end
+
+  class Class < Stmt
+    #: Token
+    attr_reader :name
+
+    #: Array[Function]
+    attr_reader :methods
+
+    #: (Token, Array[Function]) -> void
+    def initialize(name, methods)
+      super()
+      @name = name
+      @methods = methods
+    end
+
+    # @override
+    #: [R] (Visitor[R]) -> R
+    def accept(visitor)
+      visitor.visit_class_stmt(self)
     end
   end
 

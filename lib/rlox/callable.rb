@@ -23,10 +23,18 @@ class Rlox
   class LoxFunction
     include Callable
 
-    #: (Function, Environment) -> void
-    def initialize(declaration, closure)
+    #: (Function, Environment, bool) -> void
+    def initialize(declaration, closure, is_initializer)
       @declaration = declaration
       @closure = closure
+      @is_initializer = is_initializer
+    end
+
+    #: (LoxInstance) -> LoxFunction
+    def bind(instance)
+      environment = Environment.new(@closure)
+      environment.define('this', instance)
+      LoxFunction.new(@declaration, environment, initializer?)
     end
 
     # @override
@@ -41,8 +49,12 @@ class Rlox
       begin
         interpreter.execute_block(@declaration.body, environment)
       rescue ReturnError => e
-        e.value
+        return @closure.get_at(0, 'this') if initializer?
+
+        return e.value
       end
+
+      @closure.get_at(0, 'this') if initializer?
     end
 
     # @override
@@ -54,6 +66,13 @@ class Rlox
     #: -> String
     def to_s
       "<fn #{@declaration.name.lexeme}>"
+    end
+
+    private
+
+    #: () -> bool
+    def initializer?
+      @is_initializer
     end
   end
 

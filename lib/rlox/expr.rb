@@ -34,6 +34,12 @@ class Rlox
       end
 
       # @abstract
+      #: (Get) -> R
+      def visit_get_expr(_expr)
+        raise 'Abstract method called'
+      end
+
+      # @abstract
       #: (Grouping) -> R
       def visit_grouping_expr(_expr)
         raise 'Abstract method called'
@@ -48,6 +54,18 @@ class Rlox
       # @abstract
       #: (Logical) -> R
       def visit_logical_expr(_expr)
+        raise 'Abstract method called'
+      end
+
+      # @abstract
+      #: (Set) -> R
+      def visit_set_expr(_expr)
+        raise 'Abstract method called'
+      end
+
+      # @abstract
+      #: (This) -> R
+      def visit_this_expr(_expr)
         raise 'Abstract method called'
       end
 
@@ -136,6 +154,27 @@ class Rlox
     end
   end
 
+  class Get < Expr
+    #: Expr
+    attr_reader :object
+
+    #: Token
+    attr_reader :name
+
+    #: (Expr, Token) -> void
+    def initialize(object, name)
+      super()
+      @object = object
+      @name = name
+    end
+
+    # @override
+    #: [R] (Visitor[R]) -> R
+    def accept(visitor)
+      visitor.visit_get_expr(self)
+    end
+  end
+
   class Grouping < Expr
     #: Expr
     attr_reader :expression
@@ -192,6 +231,48 @@ class Rlox
     #: [R] (Visitor[R]) -> R
     def accept(visitor)
       visitor.visit_logical_expr(self)
+    end
+  end
+
+  class Set < Expr
+    #: Expr
+    attr_reader :object
+
+    #: Token
+    attr_reader :name
+
+    #: Expr
+    attr_reader :value
+
+    #: (Expr, Token, Expr) -> void
+    def initialize(object, name, value)
+      super()
+      @object = object
+      @name = name
+      @value = value
+    end
+
+    # @override
+    #: [R] (Visitor[R]) -> R
+    def accept(visitor)
+      visitor.visit_set_expr(self)
+    end
+  end
+
+  class This < Expr
+    #: Token
+    attr_reader :keyword
+
+    #: (Token) -> void
+    def initialize(keyword)
+      super()
+      @keyword = keyword
+    end
+
+    # @override
+    #: [R] (Visitor[R]) -> R
+    def accept(visitor)
+      visitor.visit_this_expr(self)
     end
   end
 

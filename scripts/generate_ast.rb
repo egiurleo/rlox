@@ -9,15 +9,19 @@ class GenerateAST
                    Assign:    { name: 'Token', value: 'Expr' },
                    Binary:    { left: 'Expr', operator: 'Token', right: 'Expr' },
                    Call:      { callee: 'Expr', paren: 'Token', arguments: 'Array[Expr]' },
+                   Get:       { object: 'Expr', name: 'Token' },
                    Grouping:  { expression: 'Expr' },
                    Literal:   { value: 'untyped' },
                    Logical:   { left: 'Expr', operator: 'Token', right: 'Expr' },
+                   Set:       { object: 'Expr', name: 'Token', value: 'Expr' },
+                   This:      { keyword: 'Token' },
                    Unary:     { operator: 'Token', right: 'Expr' },
                    Variable:  { name: 'Token' }
                  })
 
       define_ast(output_dir, 'Stmt', {
                    Block:       { statements: 'Array[Stmt]' },
+                   Class:       { name: 'Token', methods: 'Array[Function]' },
                    Expression:  { expression: 'Expr' },
                    Function:    { name: 'Token', params: 'Array[Token]', body: 'Array[Stmt]' },
                    If:          { condition: 'Expr', then_branch: 'Stmt', else_branch: 'Stmt?' },
