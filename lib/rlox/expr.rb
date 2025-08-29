@@ -8,228 +8,308 @@ class Rlox
   class Expr
     # @abstract
     #: [R] (Visitor[R]) -> R
-    def accept(_visitor)
-      raise 'Abstract method called'
+    def accept(visitor)
+      raise "Abstract method called"
     end
 
     # @abstract
-    #: [R]
-    module Visitor
-      # @abstract
-      #: (Assign) -> R
-      def visit_assign_expr(_expr)
-        raise 'Abstract method called'
-      end
+#: [R]
+module Visitor
+  # @abstract
+#: (Assign) -> R
+def visit_assign_expr(expr)
+  raise "Abstract method called"
+end
 
-      # @abstract
-      #: (Binary) -> R
-      def visit_binary_expr(_expr)
-        raise 'Abstract method called'
-      end
 
-      # @abstract
-      #: (Call) -> R
-      def visit_call_expr(_expr)
-        raise 'Abstract method called'
-      end
+# @abstract
+#: (Binary) -> R
+def visit_binary_expr(expr)
+  raise "Abstract method called"
+end
 
-      # @abstract
-      #: (Grouping) -> R
-      def visit_grouping_expr(_expr)
-        raise 'Abstract method called'
-      end
 
-      # @abstract
-      #: (Literal) -> R
-      def visit_literal_expr(_expr)
-        raise 'Abstract method called'
-      end
+# @abstract
+#: (Call) -> R
+def visit_call_expr(expr)
+  raise "Abstract method called"
+end
 
-      # @abstract
-      #: (Logical) -> R
-      def visit_logical_expr(_expr)
-        raise 'Abstract method called'
-      end
 
-      # @abstract
-      #: (Unary) -> R
-      def visit_unary_expr(_expr)
-        raise 'Abstract method called'
-      end
+# @abstract
+#: (Get) -> R
+def visit_get_expr(expr)
+  raise "Abstract method called"
+end
 
-      # @abstract
-      #: (Variable) -> R
-      def visit_variable_expr(_expr)
-        raise 'Abstract method called'
-      end
-    end
+
+# @abstract
+#: (Grouping) -> R
+def visit_grouping_expr(expr)
+  raise "Abstract method called"
+end
+
+
+# @abstract
+#: (Literal) -> R
+def visit_literal_expr(expr)
+  raise "Abstract method called"
+end
+
+
+# @abstract
+#: (Logical) -> R
+def visit_logical_expr(expr)
+  raise "Abstract method called"
+end
+
+
+# @abstract
+#: (Set) -> R
+def visit_set_expr(expr)
+  raise "Abstract method called"
+end
+
+
+# @abstract
+#: (Unary) -> R
+def visit_unary_expr(expr)
+  raise "Abstract method called"
+end
+
+
+# @abstract
+#: (Variable) -> R
+def visit_variable_expr(expr)
+  raise "Abstract method called"
+end
+
+end
+
   end
 
   class Assign < Expr
-    #: Token
-    attr_reader :name
+  #: Token
+attr_reader :name
 
-    #: Expr
-    attr_reader :value
+#: Expr
+attr_reader :value
 
-    #: (Token, Expr) -> void
-    def initialize(name, value)
-      super()
-      @name = name
-      @value = value
-    end
 
-    # @override
-    #: [R] (Visitor[R]) -> R
-    def accept(visitor)
-      visitor.visit_assign_expr(self)
-    end
+  #: (Token, Expr) -> void
+  def initialize(name, value)
+    super()
+    @name = name
+@value = value
   end
 
-  class Binary < Expr
-    #: Expr
-    attr_reader :left
+  # @override
+  #: [R] (Visitor[R]) -> R
+  def accept(visitor)
+    visitor.visit_assign_expr(self)
+  end
+end
 
-    #: Token
-    attr_reader :operator
+class Binary < Expr
+  #: Expr
+attr_reader :left
 
-    #: Expr
-    attr_reader :right
+#: Token
+attr_reader :operator
 
-    #: (Expr, Token, Expr) -> void
-    def initialize(left, operator, right)
-      super()
-      @left = left
-      @operator = operator
-      @right = right
-    end
+#: Expr
+attr_reader :right
 
-    # @override
-    #: [R] (Visitor[R]) -> R
-    def accept(visitor)
-      visitor.visit_binary_expr(self)
-    end
+
+  #: (Expr, Token, Expr) -> void
+  def initialize(left, operator, right)
+    super()
+    @left = left
+@operator = operator
+@right = right
   end
 
-  class Call < Expr
-    #: Expr
-    attr_reader :callee
+  # @override
+  #: [R] (Visitor[R]) -> R
+  def accept(visitor)
+    visitor.visit_binary_expr(self)
+  end
+end
 
-    #: Token
-    attr_reader :paren
+class Call < Expr
+  #: Expr
+attr_reader :callee
 
-    #: Array[Expr]
-    attr_reader :arguments
+#: Token
+attr_reader :paren
 
-    #: (Expr, Token, Array[Expr]) -> void
-    def initialize(callee, paren, arguments)
-      super()
-      @callee = callee
-      @paren = paren
-      @arguments = arguments
-    end
+#: Array[Expr]
+attr_reader :arguments
 
-    # @override
-    #: [R] (Visitor[R]) -> R
-    def accept(visitor)
-      visitor.visit_call_expr(self)
-    end
+
+  #: (Expr, Token, Array[Expr]) -> void
+  def initialize(callee, paren, arguments)
+    super()
+    @callee = callee
+@paren = paren
+@arguments = arguments
   end
 
-  class Grouping < Expr
-    #: Expr
-    attr_reader :expression
+  # @override
+  #: [R] (Visitor[R]) -> R
+  def accept(visitor)
+    visitor.visit_call_expr(self)
+  end
+end
 
-    #: (Expr) -> void
-    def initialize(expression)
-      super()
-      @expression = expression
-    end
+class Get < Expr
+  #: Expr
+attr_reader :object
 
-    # @override
-    #: [R] (Visitor[R]) -> R
-    def accept(visitor)
-      visitor.visit_grouping_expr(self)
-    end
+#: Token
+attr_reader :name
+
+
+  #: (Expr, Token) -> void
+  def initialize(object, name)
+    super()
+    @object = object
+@name = name
   end
 
-  class Literal < Expr
-    #: untyped
-    attr_reader :value
+  # @override
+  #: [R] (Visitor[R]) -> R
+  def accept(visitor)
+    visitor.visit_get_expr(self)
+  end
+end
 
-    #: (untyped) -> void
-    def initialize(value)
-      super()
-      @value = value
-    end
+class Grouping < Expr
+  #: Expr
+attr_reader :expression
 
-    # @override
-    #: [R] (Visitor[R]) -> R
-    def accept(visitor)
-      visitor.visit_literal_expr(self)
-    end
+
+  #: (Expr) -> void
+  def initialize(expression)
+    super()
+    @expression = expression
   end
 
-  class Logical < Expr
-    #: Expr
-    attr_reader :left
+  # @override
+  #: [R] (Visitor[R]) -> R
+  def accept(visitor)
+    visitor.visit_grouping_expr(self)
+  end
+end
 
-    #: Token
-    attr_reader :operator
+class Literal < Expr
+  #: untyped
+attr_reader :value
 
-    #: Expr
-    attr_reader :right
 
-    #: (Expr, Token, Expr) -> void
-    def initialize(left, operator, right)
-      super()
-      @left = left
-      @operator = operator
-      @right = right
-    end
-
-    # @override
-    #: [R] (Visitor[R]) -> R
-    def accept(visitor)
-      visitor.visit_logical_expr(self)
-    end
+  #: (untyped) -> void
+  def initialize(value)
+    super()
+    @value = value
   end
 
-  class Unary < Expr
-    #: Token
-    attr_reader :operator
+  # @override
+  #: [R] (Visitor[R]) -> R
+  def accept(visitor)
+    visitor.visit_literal_expr(self)
+  end
+end
 
-    #: Expr
-    attr_reader :right
+class Logical < Expr
+  #: Expr
+attr_reader :left
 
-    #: (Token, Expr) -> void
-    def initialize(operator, right)
-      super()
-      @operator = operator
-      @right = right
-    end
+#: Token
+attr_reader :operator
 
-    # @override
-    #: [R] (Visitor[R]) -> R
-    def accept(visitor)
-      visitor.visit_unary_expr(self)
-    end
+#: Expr
+attr_reader :right
+
+
+  #: (Expr, Token, Expr) -> void
+  def initialize(left, operator, right)
+    super()
+    @left = left
+@operator = operator
+@right = right
   end
 
-  class Variable < Expr
-    #: Token
-    attr_reader :name
-
-    #: (Token) -> void
-    def initialize(name)
-      super()
-      @name = name
-    end
-
-    # @override
-    #: [R] (Visitor[R]) -> R
-    def accept(visitor)
-      visitor.visit_variable_expr(self)
-    end
+  # @override
+  #: [R] (Visitor[R]) -> R
+  def accept(visitor)
+    visitor.visit_logical_expr(self)
   end
+end
+
+class Set < Expr
+  #: Expr
+attr_reader :object
+
+#: Token
+attr_reader :name
+
+#: Expr
+attr_reader :value
+
+
+  #: (Expr, Token, Expr) -> void
+  def initialize(object, name, value)
+    super()
+    @object = object
+@name = name
+@value = value
+  end
+
+  # @override
+  #: [R] (Visitor[R]) -> R
+  def accept(visitor)
+    visitor.visit_set_expr(self)
+  end
+end
+
+class Unary < Expr
+  #: Token
+attr_reader :operator
+
+#: Expr
+attr_reader :right
+
+
+  #: (Token, Expr) -> void
+  def initialize(operator, right)
+    super()
+    @operator = operator
+@right = right
+  end
+
+  # @override
+  #: [R] (Visitor[R]) -> R
+  def accept(visitor)
+    visitor.visit_unary_expr(self)
+  end
+end
+
+class Variable < Expr
+  #: Token
+attr_reader :name
+
+
+  #: (Token) -> void
+  def initialize(name)
+    super()
+    @name = name
+  end
+
+  # @override
+  #: [R] (Visitor[R]) -> R
+  def accept(visitor)
+    visitor.visit_variable_expr(self)
+  end
+end
+
 end

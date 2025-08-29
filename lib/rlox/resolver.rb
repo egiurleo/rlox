@@ -27,6 +27,13 @@ class Rlox
     end
 
     # @override
+    #: (Class) -> void
+    def visit_class_stmt(stmt)
+      declare(stmt.name)
+      define(stmt.name)
+    end
+
+    # @override
     #: (Var) -> void
     def visit_var_stmt(stmt)
       declare(stmt.name)
@@ -119,6 +126,12 @@ class Rlox
     end
 
     # @override
+    #: (Get) -> void
+    def visit_get_expr(expr)
+      resolve(expr.object)
+    end
+
+    # @override
     #: (Grouping) -> void
     def visit_grouping_expr(expr)
       resolve(expr.expression)
@@ -133,6 +146,13 @@ class Rlox
     def visit_logical_expr(expr)
       resolve(expr.left)
       resolve(expr.right)
+    end
+
+    # @override
+    #: (Set) -> void
+    def visit_set_expr(expr)
+      resolve(expr.value)
+      resolve(expr.object)
     end
 
     # @override

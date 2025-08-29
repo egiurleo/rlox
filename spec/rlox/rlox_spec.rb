@@ -144,4 +144,14 @@ RSpec.describe Rlox do
 
     expect(result).to eq("global\nglobal\n")
   end
+
+  it 'handles classes' do
+    result = run_lox(<<~LOX)
+      class Bagel {}
+      var bagel = Bagel();
+      print bagel;
+    LOX
+
+    expect(result).to eq("Bagel instance\n")
+  end
 end
