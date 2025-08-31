@@ -106,6 +106,14 @@ class Rlox
     #: () -> Stmt
     def class_declaration
       name = consume(:IDENTIFIER, 'Expect class name.')
+
+      superclass = nil #: Variable?
+
+      if match?(:LESS)
+        consume(:IDENTIFIER, 'Expect superclass name.')
+        superclass = Variable.new(previous)
+      end
+
       consume(:LEFT_BRACE, "Expect '{' before class body.")
 
       methods = [] #: Array[Function]
@@ -113,7 +121,7 @@ class Rlox
 
       consume(:RIGHT_BRACE, "Expect '}' after class body.")
 
-      Class.new(name, methods)
+      Class.new(name, superclass, methods)
     end
 
     #: () -> Stmt
@@ -344,6 +352,14 @@ class Rlox
       return Literal.new(true) if match?(:TRUE)
       return Literal.new(nil) if match?(:NIL)
       return Literal.new(previous.literal) if match?(:NUMBER, :STRING)
+
+      if match?(:SUPER)
+        keyword = previous
+        consume(:DOT, "Expect '.' after 'super'.")
+        method = consume(:IDENTIFIER, 'Expect superclass method name.')
+        return Super.new(keyword, method)
+      end
+
       return This.new(previous) if match?(:THIS)
       return Variable.new(previous) if match?(:IDENTIFIER)
 

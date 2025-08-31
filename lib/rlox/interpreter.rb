@@ -69,6 +69,21 @@ class Rlox
     end
 
     # @override
+    #: (Super) -> untyped
+    def visit_super_expr(expr)
+      distance = @locals[expr]
+      return unless distance
+
+      superclass = @environment.get_at(distance, 'super') #: LoxClass
+      object = @environment.get_at(distance - 1, 'this')
+      method = superclass.find_method(expr.method.lexeme)
+
+      raise RuntimeError.new(expr.method, "Undefined property #{expr.method.lexeme}.") unless method
+
+      method.bind(object)
+    end
+
+    # @override
     #: (This) -> untyped
     def visit_this_expr(expr)
       lookup_variable(expr.keyword, expr)
@@ -255,7 +270,22 @@ class Rlox
     # @override
     #: (Class) -> void
     def visit_class_stmt(stmt)
+      superclass = stmt.superclass
+      evaluated_superclass = nil #: LoxClass?
+
+      if superclass
+        evaluated_superclass = evaluate(superclass)
+        unless evaluated_superclass.is_a?(LoxClass)
+          raise RuntimeError.new(superclass.name, 'Superclass must be a class')
+        end
+      end
+
       @environment.define(stmt.name.lexeme, nil)
+
+      if evaluated_superclass
+        @environment = Environment.new(@environment)
+        @environment.define('super', evaluated_superclass)
+      end
 
       methods = {} #: Hash[String, LoxFunction]
       stmt.methods.each do |method|
@@ -263,7 +293,13 @@ class Rlox
         methods[method.name.lexeme] = function
       end
 
-      klass = LoxClass.new(stmt.name.lexeme, methods)
+      klass = LoxClass.new(stmt.name.lexeme, evaluated_superclass, methods)
+
+      if evaluated_superclass
+        enclosing_environment = @environment.enclosing #: as Environment
+        @environment = enclosing_environment
+      end
+
       @environment.assign(stmt.name, klass)
     end
 

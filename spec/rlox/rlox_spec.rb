@@ -190,4 +190,46 @@ RSpec.describe Rlox do
 
     expect(result).to eq("The German chocolate cake is delicious!\n")
   end
+
+  it 'calls methods on superclass' do
+    result = run_lox(<<~LOX)
+      class Doughnut {
+        init() {}
+        cook() {
+          print "Fry until golden brown.";
+        }
+      }
+
+      class BostonCream < Doughnut {
+        init() {}
+      }
+
+      BostonCream().cook();
+    LOX
+
+    expect(result).to eq("Fry until golden brown.\n")
+  end
+
+  it 'calls super method' do
+    result = run_lox(<<~LOX)
+      class Doughnut {
+        init() {}
+        cook() {
+          print "Fry until golden brown.";
+        }
+      }
+
+      class BostonCream < Doughnut {
+        init() {}
+        cook() {
+          super.cook();
+          print "Pipe full of custard and coat with chocolate.";
+        }
+      }
+
+      BostonCream().cook();
+    LOX
+
+    expect(result).to eq("Fry until golden brown.\nPipe full of custard and coat with chocolate.\n")
+  end
 end

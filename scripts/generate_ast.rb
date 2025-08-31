@@ -14,6 +14,7 @@ class GenerateAST
                    Literal:   { value: 'untyped' },
                    Logical:   { left: 'Expr', operator: 'Token', right: 'Expr' },
                    Set:       { object: 'Expr', name: 'Token', value: 'Expr' },
+                   Super:     { keyword: 'Token', method: 'Token' },
                    This:      { keyword: 'Token' },
                    Unary:     { operator: 'Token', right: 'Expr' },
                    Variable:  { name: 'Token' }
@@ -21,7 +22,7 @@ class GenerateAST
 
       define_ast(output_dir, 'Stmt', {
                    Block:       { statements: 'Array[Stmt]' },
-                   Class:       { name: 'Token', methods: 'Array[Function]' },
+                   Class:       { name: 'Token', superclass: 'Variable?', methods: 'Array[Function]' },
                    Expression:  { expression: 'Expr' },
                    Function:    { name: 'Token', params: 'Array[Token]', body: 'Array[Stmt]' },
                    If:          { condition: 'Expr', then_branch: 'Stmt', else_branch: 'Stmt?' },

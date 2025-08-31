@@ -10,7 +10,7 @@ class Rlox
     include Stmt::Visitor
 
     FUNCTION_TYPES = %i[NONE FUNCTION METHOD INITIALIZER].freeze
-    CLASS_TYPES = %i[NONE CLASS].freeze
+    CLASS_TYPES = %i[NONE CLASS SUBCLASS].freeze
 
     #: (Interpreter) -> void
     def initialize(interpreter)
@@ -32,14 +32,25 @@ class Rlox
     #: (Class) -> void
     def visit_class_stmt(stmt)
       enclosing_class = @current_class
-      @current_class = :CLASS
+      self.current_class = :CLASS
 
       declare(stmt.name)
       define(stmt.name)
 
+      superclass = stmt.superclass
+      if superclass
+        self.current_class = :SUBCLASS
+
+        Rlox.error(superclass.name, "A class can't inherit from itself.") if stmt.name.lexeme == superclass.name.lexeme
+
+        resolve(superclass)
+
+        begin_scope
+        add_to_innermost_scope('super')
+      end
+
       begin_scope
-      innermost_scope = @scopes.last #: as Hash[String, bool]
-      innermost_scope['this'] = true
+      add_to_innermost_scope('this')
 
       stmt.methods.each do |method|
         declaration = :METHOD
@@ -49,7 +60,9 @@ class Rlox
       end
 
       end_scope
-      @current_class = enclosing_class
+      end_scope if superclass
+
+      self.current_class = enclosing_class
     end
 
     # @override
@@ -178,6 +191,18 @@ class Rlox
     end
 
     # @override
+    #: (Super) -> void
+    def visit_super_expr(expr)
+      if @current_class == :NONE
+        Rlox.error(expr.keyword, "Can't use 'super' outside of a class.")
+      elsif @current_class != :SUBCLASS
+        Rlox.error(expr.keyword, "Can't use 'super' in a class with no superclass.")
+      end
+
+      resolve_local(expr, expr.keyword)
+    end
+
+    # @override
     #: (This) -> void
     def visit_this_expr(expr)
       if @current_class == :NONE
@@ -215,6 +240,14 @@ class Rlox
     #: () -> void
     def end_scope
       @scopes.pop
+    end
+
+    #: (String) -> void
+    def add_to_innermost_scope(name)
+      innermost_scope = @scopes.last
+      return unless innermost_scope
+
+      innermost_scope[name] = true
     end
 
     #: (Token) -> void
@@ -267,8 +300,19 @@ class Rlox
     end
 
     #: (Symbol) -> void
+    def current_class=(type)
+      check_class_type!(type)
+      @current_class = type
+    end
+
+    #: (Symbol) -> void
     def check_function_type!(type)
       raise unless FUNCTION_TYPES.include?(type)
+    end
+
+    #: (Symbol) -> void
+    def check_class_type!(type)
+      raise unless CLASS_TYPES.include?(type)
     end
   end
 end

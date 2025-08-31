@@ -8,251 +8,275 @@ class Rlox
   class Stmt
     # @abstract
     #: [R] (Visitor[R]) -> R
-    def accept(_visitor)
-      raise 'Abstract method called'
+    def accept(visitor)
+      raise "Abstract method called"
     end
 
     # @abstract
-    #: [R]
-    module Visitor
-      # @abstract
-      #: (Block) -> R
-      def visit_block_stmt(_stmt)
-        raise 'Abstract method called'
-      end
+#: [R]
+module Visitor
+  # @abstract
+#: (Block) -> R
+def visit_block_stmt(stmt)
+  raise "Abstract method called"
+end
 
-      # @abstract
-      #: (Class) -> R
-      def visit_class_stmt(_stmt)
-        raise 'Abstract method called'
-      end
 
-      # @abstract
-      #: (Expression) -> R
-      def visit_expression_stmt(_stmt)
-        raise 'Abstract method called'
-      end
+# @abstract
+#: (Class) -> R
+def visit_class_stmt(stmt)
+  raise "Abstract method called"
+end
 
-      # @abstract
-      #: (Function) -> R
-      def visit_function_stmt(_stmt)
-        raise 'Abstract method called'
-      end
 
-      # @abstract
-      #: (If) -> R
-      def visit_if_stmt(_stmt)
-        raise 'Abstract method called'
-      end
+# @abstract
+#: (Expression) -> R
+def visit_expression_stmt(stmt)
+  raise "Abstract method called"
+end
 
-      # @abstract
-      #: (Print) -> R
-      def visit_print_stmt(_stmt)
-        raise 'Abstract method called'
-      end
 
-      # @abstract
-      #: (Return) -> R
-      def visit_return_stmt(_stmt)
-        raise 'Abstract method called'
-      end
+# @abstract
+#: (Function) -> R
+def visit_function_stmt(stmt)
+  raise "Abstract method called"
+end
 
-      # @abstract
-      #: (Var) -> R
-      def visit_var_stmt(_stmt)
-        raise 'Abstract method called'
-      end
 
-      # @abstract
-      #: (While) -> R
-      def visit_while_stmt(_stmt)
-        raise 'Abstract method called'
-      end
-    end
+# @abstract
+#: (If) -> R
+def visit_if_stmt(stmt)
+  raise "Abstract method called"
+end
+
+
+# @abstract
+#: (Print) -> R
+def visit_print_stmt(stmt)
+  raise "Abstract method called"
+end
+
+
+# @abstract
+#: (Return) -> R
+def visit_return_stmt(stmt)
+  raise "Abstract method called"
+end
+
+
+# @abstract
+#: (Var) -> R
+def visit_var_stmt(stmt)
+  raise "Abstract method called"
+end
+
+
+# @abstract
+#: (While) -> R
+def visit_while_stmt(stmt)
+  raise "Abstract method called"
+end
+
+end
+
   end
 
   class Block < Stmt
-    #: Array[Stmt]
-    attr_reader :statements
+  #: Array[Stmt]
+attr_reader :statements
 
-    #: (Array[Stmt]) -> void
-    def initialize(statements)
-      super()
-      @statements = statements
-    end
 
-    # @override
-    #: [R] (Visitor[R]) -> R
-    def accept(visitor)
-      visitor.visit_block_stmt(self)
-    end
+  #: (Array[Stmt]) -> void
+  def initialize(statements)
+    super()
+    @statements = statements
   end
 
-  class Class < Stmt
-    #: Token
-    attr_reader :name
+  # @override
+  #: [R] (Visitor[R]) -> R
+  def accept(visitor)
+    visitor.visit_block_stmt(self)
+  end
+end
 
-    #: Array[Function]
-    attr_reader :methods
+class Class < Stmt
+  #: Token
+attr_reader :name
 
-    #: (Token, Array[Function]) -> void
-    def initialize(name, methods)
-      super()
-      @name = name
-      @methods = methods
-    end
+#: Variable?
+attr_reader :superclass
 
-    # @override
-    #: [R] (Visitor[R]) -> R
-    def accept(visitor)
-      visitor.visit_class_stmt(self)
-    end
+#: Array[Function]
+attr_reader :methods
+
+
+  #: (Token, Variable?, Array[Function]) -> void
+  def initialize(name, superclass, methods)
+    super()
+    @name = name
+@superclass = superclass
+@methods = methods
   end
 
-  class Expression < Stmt
-    #: Expr
-    attr_reader :expression
+  # @override
+  #: [R] (Visitor[R]) -> R
+  def accept(visitor)
+    visitor.visit_class_stmt(self)
+  end
+end
 
-    #: (Expr) -> void
-    def initialize(expression)
-      super()
-      @expression = expression
-    end
+class Expression < Stmt
+  #: Expr
+attr_reader :expression
 
-    # @override
-    #: [R] (Visitor[R]) -> R
-    def accept(visitor)
-      visitor.visit_expression_stmt(self)
-    end
+
+  #: (Expr) -> void
+  def initialize(expression)
+    super()
+    @expression = expression
   end
 
-  class Function < Stmt
-    #: Token
-    attr_reader :name
+  # @override
+  #: [R] (Visitor[R]) -> R
+  def accept(visitor)
+    visitor.visit_expression_stmt(self)
+  end
+end
 
-    #: Array[Token]
-    attr_reader :params
+class Function < Stmt
+  #: Token
+attr_reader :name
 
-    #: Array[Stmt]
-    attr_reader :body
+#: Array[Token]
+attr_reader :params
 
-    #: (Token, Array[Token], Array[Stmt]) -> void
-    def initialize(name, params, body)
-      super()
-      @name = name
-      @params = params
-      @body = body
-    end
+#: Array[Stmt]
+attr_reader :body
 
-    # @override
-    #: [R] (Visitor[R]) -> R
-    def accept(visitor)
-      visitor.visit_function_stmt(self)
-    end
+
+  #: (Token, Array[Token], Array[Stmt]) -> void
+  def initialize(name, params, body)
+    super()
+    @name = name
+@params = params
+@body = body
   end
 
-  class If < Stmt
-    #: Expr
-    attr_reader :condition
+  # @override
+  #: [R] (Visitor[R]) -> R
+  def accept(visitor)
+    visitor.visit_function_stmt(self)
+  end
+end
 
-    #: Stmt
-    attr_reader :then_branch
+class If < Stmt
+  #: Expr
+attr_reader :condition
 
-    #: Stmt?
-    attr_reader :else_branch
+#: Stmt
+attr_reader :then_branch
 
-    #: (Expr, Stmt, Stmt?) -> void
-    def initialize(condition, then_branch, else_branch)
-      super()
-      @condition = condition
-      @then_branch = then_branch
-      @else_branch = else_branch
-    end
+#: Stmt?
+attr_reader :else_branch
 
-    # @override
-    #: [R] (Visitor[R]) -> R
-    def accept(visitor)
-      visitor.visit_if_stmt(self)
-    end
+
+  #: (Expr, Stmt, Stmt?) -> void
+  def initialize(condition, then_branch, else_branch)
+    super()
+    @condition = condition
+@then_branch = then_branch
+@else_branch = else_branch
   end
 
-  class Print < Stmt
-    #: Expr
-    attr_reader :expression
+  # @override
+  #: [R] (Visitor[R]) -> R
+  def accept(visitor)
+    visitor.visit_if_stmt(self)
+  end
+end
 
-    #: (Expr) -> void
-    def initialize(expression)
-      super()
-      @expression = expression
-    end
+class Print < Stmt
+  #: Expr
+attr_reader :expression
 
-    # @override
-    #: [R] (Visitor[R]) -> R
-    def accept(visitor)
-      visitor.visit_print_stmt(self)
-    end
+
+  #: (Expr) -> void
+  def initialize(expression)
+    super()
+    @expression = expression
   end
 
-  class Return < Stmt
-    #: Token
-    attr_reader :keyword
+  # @override
+  #: [R] (Visitor[R]) -> R
+  def accept(visitor)
+    visitor.visit_print_stmt(self)
+  end
+end
 
-    #: Expr?
-    attr_reader :value
+class Return < Stmt
+  #: Token
+attr_reader :keyword
 
-    #: (Token, Expr?) -> void
-    def initialize(keyword, value)
-      super()
-      @keyword = keyword
-      @value = value
-    end
+#: Expr?
+attr_reader :value
 
-    # @override
-    #: [R] (Visitor[R]) -> R
-    def accept(visitor)
-      visitor.visit_return_stmt(self)
-    end
+
+  #: (Token, Expr?) -> void
+  def initialize(keyword, value)
+    super()
+    @keyword = keyword
+@value = value
   end
 
-  class Var < Stmt
-    #: Token
-    attr_reader :name
+  # @override
+  #: [R] (Visitor[R]) -> R
+  def accept(visitor)
+    visitor.visit_return_stmt(self)
+  end
+end
 
-    #: Expr?
-    attr_reader :initializer
+class Var < Stmt
+  #: Token
+attr_reader :name
 
-    #: (Token, Expr?) -> void
-    def initialize(name, initializer)
-      super()
-      @name = name
-      @initializer = initializer
-    end
+#: Expr?
+attr_reader :initializer
 
-    # @override
-    #: [R] (Visitor[R]) -> R
-    def accept(visitor)
-      visitor.visit_var_stmt(self)
-    end
+
+  #: (Token, Expr?) -> void
+  def initialize(name, initializer)
+    super()
+    @name = name
+@initializer = initializer
   end
 
-  class While < Stmt
-    #: Expr
-    attr_reader :condition
-
-    #: Stmt
-    attr_reader :body
-
-    #: (Expr, Stmt) -> void
-    def initialize(condition, body)
-      super()
-      @condition = condition
-      @body = body
-    end
-
-    # @override
-    #: [R] (Visitor[R]) -> R
-    def accept(visitor)
-      visitor.visit_while_stmt(self)
-    end
+  # @override
+  #: [R] (Visitor[R]) -> R
+  def accept(visitor)
+    visitor.visit_var_stmt(self)
   end
+end
+
+class While < Stmt
+  #: Expr
+attr_reader :condition
+
+#: Stmt
+attr_reader :body
+
+
+  #: (Expr, Stmt) -> void
+  def initialize(condition, body)
+    super()
+    @condition = condition
+@body = body
+  end
+
+  # @override
+  #: [R] (Visitor[R]) -> R
+  def accept(visitor)
+    visitor.visit_while_stmt(self)
+  end
+end
+
 end

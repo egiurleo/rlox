@@ -8,15 +8,18 @@ class Rlox
     #: String
     attr_reader :name
 
-    #: (String, Hash[String, LoxFunction]) -> void
-    def initialize(name, methods)
+    #: (String, LoxClass?, Hash[String, LoxFunction]) -> void
+    def initialize(name, superclass, methods)
       @name = name
       @methods = methods
+      @superclass = superclass
     end
 
     #: (String) -> LoxFunction?
     def find_method(name)
-      @methods[name]
+      return @methods[name] if @methods.key?(name)
+
+      @superclass&.find_method(name)
     end
 
     # @override
